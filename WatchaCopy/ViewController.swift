@@ -10,7 +10,7 @@ import UIKit
 import AVFoundation
 import MediaPlayer
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, UIGestureRecognizerDelegate{
 
     @IBOutlet weak var videoPlayView: UIView!
     @IBOutlet weak var overlayView: UIView!
@@ -24,6 +24,9 @@ class ViewController: UIViewController {
     @IBOutlet weak var endTimeLabel: UILabel!
     @IBOutlet weak var timeSlider: UISlider!
     
+    @IBOutlet weak var bottomViewPositionConst: NSLayoutConstraint!
+    
+    var isLeft:Bool = false
     @IBAction func timeSlideAction(_ sender: Any) {
         if let duration = player?.currentItem?.duration {
             print(duration)
@@ -38,6 +41,7 @@ class ViewController: UIViewController {
         }
     }
     
+    @IBOutlet weak var topControlView: UIView!
     func skipForward(){
         guard let duration = player.currentItem?.duration else {
             return
@@ -50,6 +54,7 @@ class ViewController: UIViewController {
             player.seek(to: time)
         }
     }
+    
     func skipBackWard(){
         guard let duration = player.currentItem?.duration else {
             return
@@ -78,10 +83,23 @@ class ViewController: UIViewController {
             player.play()
 //            sender.setImage(UIImage(named: "pause"), for: .normal)
         }
-        
         isVideoPlaying = !isVideoPlaying
     }
-    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        for touch in touches {
+            let location = touch.location(in: self.view)
+            
+            print("location : \(location)")
+            
+            if location.x < self.view.frame.size.width/2 {
+                print("Left")
+                isLeft = true
+            }else {
+                print("Right")
+                isLeft = false
+            }
+        }
+    }
     
     @IBAction func rewindBackAction(_ sender: Any) {
         skipBackWard()
@@ -93,14 +111,28 @@ class ViewController: UIViewController {
     var isVideoPlaying:Bool = false
 //    var isPortraitMode:Bool = true
     
+    // MARK: - Volume Control
+    let maxVal:Float = 1.0
+    
+    var volumeView = (MPVolumeView().subviews.filter{
+        NSStringFromClass($0.classForCoder) == "MPVolumeSlider"}.first as? UISlider)
+    var volume:Float = ((MPVolumeView().subviews.filter{NSStringFromClass($0.classForCoder) == "MPVolumeSlider"}.first as? UISlider)?.value)!
+    var brightness: Float = Float(UIScreen.main.brightness)
+    
+    
+    
+    // MARK: - Lifecycle - viewDidLoad()
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
+        
+        let volumeView = MPVolumeView(frame: CGRect(x: -100, y: -100, width: 0, height: 0))
+        view.addSubview(volumeView)
         let value = UIInterfaceOrientation.landscapeRight.rawValue
         UIDevice.current.setValue(value, forKey: "orientation")
         
         currentTimeLabel.text = "00:00"
-        
         
         timeSlider.maximumTrackTintColor = UIColor.white
 //        timeSlider.minimumTrackTintColor = Colors.watchaPink
@@ -124,16 +156,68 @@ class ViewController: UIViewController {
         print("here")
         
         addTimeObserver()
+        setGestureRecog()
     }
-    
+    // MARK: - Lifecycle - viewWillApper()
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
     }
     
+    
+    // MARK: ovverride
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         //        //첫번꺼 꺼
         if keyPath == "duration", let duration = player.currentItem?.duration.seconds, duration > 0.0{
             self.endTimeLabel.text = timeToString(from: player.currentItem!.duration)
+        }
+    }
+    
+    func setGestureRecog(){
+        let panGesture = UIPanGestureRecognizer.init(target: self, action: #selector(pan(recognizer:)))
+        panGesture.delegate = self
+        panGesture.minimumNumberOfTouches = 1
+        self.overlayView.addGestureRecognizer(panGesture)
+    }
+    
+    @objc
+    func pan(recognizer:UIPanGestureRecognizer) {
+        if recognizer.state == UIGestureRecognizerState.changed {
+            let velocity:CGPoint = recognizer.velocity(in: self.view)
+            let yTranslation = recognizer.translation(in: self.view).y
+            
+            if isLeft {
+                if velocity.y > 0 {
+                    
+                    brightness = brightness - 0.01
+                    
+                    print("brightness up: \(brightness)")
+                    UIScreen.main.brightness = CGFloat(brightness)
+                }else {
+//                    var brightness: Float = Float(UIScreen.main.brightness)
+                    brightness = brightness + 0.01
+                    print("brightness down: \(brightness)")
+                    UIScreen.main.brightness = CGFloat(brightness)
+                }
+            }else {
+                if velocity.y > 0 {
+                    
+                    print("y > 0")
+                    volume = volume - 0.01
+                    volumeView?.setValue(volume, animated: false)
+//                    rightValueConst.constant = CGFloat(calcValueHeight(Float(volume)))
+//                    controlView.controlValueLabel.text = String(Int(calcCurrentPercent(Float(volume))))
+//                    controlView.controlValueLabel.textColor = UIColor(patternImage: partialGradient(forViewSize: controlView.controlValueLabel.frame.size, proportion: CGFloat(Float(volume))))
+                }else {
+                    //음향 감소
+                    
+                    print("y else 0")
+                    volume = volume + 0.01
+                    volumeView?.setValue(volume, animated: false)
+//                    rightValueConst.constant = CGFloat(calcValueHeight(Float(volume)))
+//                    controlView.controlValueLabel.text = String(Int(calcCurrentPercent(Float(volume))))
+//                    controlView.controlValueLabel.textColor = UIColor(patternImage: partialGradient(forViewSize: controlView.controlValueLabel.frame.size, proportion: CGFloat(Float(volume))))
+                }
+            }
         }
     }
     
@@ -159,7 +243,7 @@ class ViewController: UIViewController {
         })
     }
     
-//MARK: - Device rotate default set
+    // MARK: - Device rotate default set
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         return .landscapeRight
     }

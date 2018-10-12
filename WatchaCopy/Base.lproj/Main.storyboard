@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13122.16" systemVersion="17A277" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina4_7" orientation="landscape">
+        <adaptation id="fullscreen"/>
+    </device>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13104.12"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -9,16 +13,120 @@
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="WatchaCopy" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="667" height="375"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="j0b-Hm-Rva">
+                                <rect key="frame" x="0.0" y="0.0" width="667" height="375"/>
+                                <color key="backgroundColor" white="0.5" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UXN-3H-6MI">
+                                <rect key="frame" x="0.0" y="0.0" width="667" height="375"/>
+                                <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Iy8-yP-KVi">
+                                        <rect key="frame" x="0.0" y="325" width="667" height="50"/>
+                                        <subviews>
+                                            <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="fSt-rp-HI8">
+                                                <rect key="frame" x="50" y="0.0" width="607" height="50"/>
+                                                <subviews>
+                                                    <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="30" translatesAutoresizingMaskIntoConstraints="NO" id="coT-XN-2zd">
+                                                        <rect key="frame" x="0.0" y="14" width="60" height="22"/>
+                                                        <subviews>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dCR-aR-FeA">
+                                                                <rect key="frame" x="0.0" y="2" width="0.0" height="18"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                                <state key="normal" image="shuffle"/>
+                                                                <connections>
+                                                                    <action selector="playAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ruo-WA-kHm"/>
+                                                                </connections>
+                                                            </button>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ggI-ro-NkH">
+                                                                <rect key="frame" x="30" y="0.0" width="0.0" height="22"/>
+                                                                <state key="normal" image="repeat"/>
+                                                                <connections>
+                                                                    <action selector="rewindBackAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="2g2-bT-G7W"/>
+                                                                </connections>
+                                                            </button>
+                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hQj-pW-ruD">
+                                                                <rect key="frame" x="60" y="1" width="0.0" height="20.5"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                        </subviews>
+                                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    </stackView>
+                                                    <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="lhQ-82-eji">
+                                                        <rect key="frame" x="80" y="10" width="527" height="30"/>
+                                                        <subviews>
+                                                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="TDT-OF-Te4">
+                                                                <rect key="frame" x="-2" y="0.0" width="511" height="31"/>
+                                                                <color key="tintColor" red="0.96862745100000003" green="0.57254901960000004" blue="0.63529411759999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                                <connections>
+                                                                    <action selector="timeSlideAction:" destination="BYZ-38-t0r" eventType="valueChanged" id="sj7-VJ-8VS"/>
+                                                                </connections>
+                                                            </slider>
+                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="E5a-AK-don">
+                                                                <rect key="frame" x="527" y="5" width="0.0" height="20.5"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                        </subviews>
+                                                    </stackView>
+                                                </subviews>
+                                            </stackView>
+                                        </subviews>
+                                        <color key="backgroundColor" white="0.25" alpha="0.67792166095890416" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstItem="fSt-rp-HI8" firstAttribute="leading" secondItem="Iy8-yP-KVi" secondAttribute="leading" constant="50" id="F4i-N1-d3P"/>
+                                            <constraint firstItem="fSt-rp-HI8" firstAttribute="top" secondItem="Iy8-yP-KVi" secondAttribute="top" id="QGI-dq-o09"/>
+                                            <constraint firstAttribute="bottom" secondItem="fSt-rp-HI8" secondAttribute="bottom" id="f0J-6b-9a3"/>
+                                            <constraint firstAttribute="height" constant="50" id="fwg-Rw-Dx9"/>
+                                            <constraint firstAttribute="trailing" secondItem="fSt-rp-HI8" secondAttribute="trailing" constant="10" id="tUZ-Ny-OMm"/>
+                                        </constraints>
+                                    </view>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstItem="Iy8-yP-KVi" firstAttribute="leading" secondItem="UXN-3H-6MI" secondAttribute="leading" id="CMu-mX-xXv"/>
+                                    <constraint firstAttribute="trailing" secondItem="Iy8-yP-KVi" secondAttribute="trailing" id="Fhi-0A-WZM"/>
+                                    <constraint firstAttribute="bottom" secondItem="Iy8-yP-KVi" secondAttribute="bottom" id="aKF-9r-hrl"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="UXN-3H-6MI" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="0U4-nU-hzR"/>
+                            <constraint firstItem="UXN-3H-6MI" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="5ef-WY-ecJ"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="j0b-Hm-Rva" secondAttribute="bottom" id="9B0-5Z-tfb"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="UXN-3H-6MI" secondAttribute="bottom" id="Eyu-aD-uMe"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="UXN-3H-6MI" secondAttribute="trailing" id="PNW-as-TOg"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="j0b-Hm-Rva" secondAttribute="trailing" id="QDQ-Gi-l2B"/>
+                            <constraint firstItem="j0b-Hm-Rva" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="dZM-48-mar"/>
+                            <constraint firstItem="j0b-Hm-Rva" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="eed-Gh-pxa"/>
+                        </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
+                    <connections>
+                        <outlet property="bottomControlView" destination="Iy8-yP-KVi" id="yLO-8g-OvK"/>
+                        <outlet property="currentTimeLabel" destination="hQj-pW-ruD" id="aLS-xM-U4W"/>
+                        <outlet property="endTimeLabel" destination="E5a-AK-don" id="gZy-Xt-qg3"/>
+                        <outlet property="overlayView" destination="UXN-3H-6MI" id="zfE-dI-w78"/>
+                        <outlet property="playButton" destination="ggI-ro-NkH" id="jzS-Hj-HPz"/>
+                        <outlet property="rewindButton" destination="dCR-aR-FeA" id="smi-8i-rnD"/>
+                        <outlet property="timeSlider" destination="TDT-OF-Te4" id="VBy-jY-qXt"/>
+                        <outlet property="videoPlayView" destination="j0b-Hm-Rva" id="s3A-NL-r3x"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
         </scene>
     </scenes>
+    <resources>
+        <image name="repeat" width="14" height="17"/>
+        <image name="shuffle" width="20" height="17"/>
+    </resources>
 </document>

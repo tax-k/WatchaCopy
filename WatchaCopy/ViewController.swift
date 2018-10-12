@@ -27,6 +27,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
     @IBOutlet weak var bottomViewPositionConst: NSLayoutConstraint!
     
     var isLeft:Bool = false
+    var panDir:Int = 0
     @IBAction func timeSlideAction(_ sender: Any) {
         if let duration = player?.currentItem?.duration {
             print(duration)
@@ -89,6 +90,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         for touch in touches {
             let location = touch.location(in: self.view)
             
+            
             print("location : \(location)")
             
             if location.x < self.view.frame.size.width/2 {
@@ -117,8 +119,6 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
     var volumeView = (MPVolumeView().subviews.filter{
         NSStringFromClass($0.classForCoder) == "MPVolumeSlider"}.first as? UISlider)
     var volume:Float = ((MPVolumeView().subviews.filter{NSStringFromClass($0.classForCoder) == "MPVolumeSlider"}.first as? UISlider)?.value)!
-    var brightness: Float = Float(UIScreen.main.brightness)
-    
     
     
     // MARK: - Lifecycle - viewDidLoad()
@@ -185,15 +185,47 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
             let velocity:CGPoint = recognizer.velocity(in: self.view)
             let yTranslation = recognizer.translation(in: self.view).y
             
+            
+            let direction = recognizer.direction(in: self.view)
+            
+            print(direction)
+            
+            if direction.contains(.Right){
+                if let duration = player?.currentItem?.duration, let currTime = player?.currentItem?.currentTime().seconds{
+                    
+                    let value = currTime + 3
+                    let seekTime = CMTime(value: Int64(value), timescale: 1)
+                    player.seek(to: seekTime, completionHandler: { (completedSeek) in
+
+                    })
+                }
+            }else if direction.contains(.Left){
+                if let duration = player?.currentItem?.duration, let currTime = player?.currentItem?.currentTime().seconds{
+                    
+                    let value = currTime - 3
+                    let seekTime = CMTime(value: Int64(value), timescale: 1)
+                    player.seek(to: seekTime, completionHandler: { (completedSeek) in
+                        
+                    })
+                }
+            }
+            
+            if direction.contains(.Left) && direction.contains(.Down) {
+                // do stuff
+            } else if direction.contains(.Up) {
+                // ...
+            }
+            
             if isLeft {
                 if velocity.y > 0 {
+                    var brightness: Float = Float(UIScreen.main.brightness)
                     
                     brightness = brightness - 0.01
                     
                     print("brightness up: \(brightness)")
                     UIScreen.main.brightness = CGFloat(brightness)
                 }else {
-//                    var brightness: Float = Float(UIScreen.main.brightness)
+                    var brightness: Float = Float(UIScreen.main.brightness)
                     brightness = brightness + 0.01
                     print("brightness down: \(brightness)")
                     UIScreen.main.brightness = CGFloat(brightness)
@@ -201,7 +233,6 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
             }else {
                 if velocity.y > 0 {
                     
-                    print("y > 0")
                     volume = volume - 0.01
                     volumeView?.setValue(volume, animated: false)
 //                    rightValueConst.constant = CGFloat(calcValueHeight(Float(volume)))
@@ -250,6 +281,36 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
     
     override var shouldAutorotate: Bool {
         return true
+    }
+}
+
+extension UIPanGestureRecognizer {
+    
+    public struct PanGestureDirection: OptionSet {
+        public let rawValue: UInt8
+        
+        public init(rawValue: UInt8) {
+            self.rawValue = rawValue
+        }
+        
+        static let Up = PanGestureDirection(rawValue: 1 << 0)
+        static let Down = PanGestureDirection(rawValue: 1 << 1)
+        static let Left = PanGestureDirection(rawValue: 1 << 2)
+        static let Right = PanGestureDirection(rawValue: 1 << 3)
+    }
+    
+    private func getDirectionBy(velocity: CGFloat, greater: PanGestureDirection, lower: PanGestureDirection) -> PanGestureDirection {
+        if velocity == 0 {
+            return []
+        }
+        return velocity > 0 ? greater : lower
+    }
+    
+    public func direction(in view: UIView) -> PanGestureDirection {
+        let velocity = self.velocity(in: view)
+        let yDirection = getDirectionBy(velocity: velocity.y, greater: PanGestureDirection.Down, lower: PanGestureDirection.Up)
+        let xDirection = getDirectionBy(velocity: velocity.x, greater: PanGestureDirection.Right, lower: PanGestureDirection.Left)
+        return xDirection.union(yDirection)
     }
 }
 

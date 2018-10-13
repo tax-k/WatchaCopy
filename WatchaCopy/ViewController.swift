@@ -43,6 +43,36 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
     }
     
     @IBOutlet weak var topControlView: UIView!
+    
+    func setTopConbtrolViewGradient() {
+        let gradient: CAGradientLayer = CAGradientLayer()
+        gradient.colors = [
+            UIColor(red: 0, green: 0, blue: 0, alpha: 0.8).cgColor,
+            UIColor(red: 0, green: 0, blue: 0, alpha: 0.0).cgColor
+        ]
+        gradient.locations = [0.0 , 0.5]
+        gradient.startPoint = CGPoint(x: 0.5, y: 0.0)
+        gradient.endPoint = CGPoint(x: 0.5, y: 1.0)
+        gradient.frame = topControlView.layer.frame
+        topControlView.layer.insertSublayer(gradient, at: 0)
+    }
+    
+    func setBottomControlViewGradient() {
+        let gradient: CAGradientLayer = CAGradientLayer()
+        gradient.colors = [
+            UIColor(red: 0, green: 0, blue: 0, alpha: 0.0).cgColor,
+            UIColor(red: 0, green: 0, blue: 0, alpha: 0.8).cgColor
+        ]
+        gradient.locations = [0.0 , 0.5]
+        gradient.startPoint = CGPoint(x: 0.5, y: 1.0)
+        gradient.endPoint = CGPoint(x: 0.5, y: 0.0)
+        gradient.frame = bottomControlView.layer.frame
+//        bottomControlView.layer.insertSublayer(gradient, at: 0)
+        bottomControlView.layer.addSublayer(gradient)
+    }
+    
+    
+    
     func skipForward(){
         guard let duration = player.currentItem?.duration else {
             return
@@ -126,6 +156,8 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
+        setTopConbtrolViewGradient()
+        setBottomControlViewGradient()
         
         let volumeView = MPVolumeView(frame: CGRect(x: -100, y: -100, width: 0, height: 0))
         view.addSubview(volumeView)

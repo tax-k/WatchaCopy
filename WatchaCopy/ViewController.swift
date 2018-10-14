@@ -11,19 +11,16 @@ import AVFoundation
 import MediaPlayer
 
 class ViewController: UIViewController, UIGestureRecognizerDelegate{
-
+    //MARK: - IBOutlet
     @IBOutlet weak var videoPlayView: UIView!
     @IBOutlet weak var overlayView: UIView!
-    
+    @IBOutlet weak var topControlView: UIView!
     @IBOutlet weak var bottomControlView: UIView!
     @IBOutlet weak var currentTimeLabel: UILabel!
-    
     @IBOutlet weak var playButton: UIButton!
     @IBOutlet weak var rewindButton: UIButton!
-    
     @IBOutlet weak var endTimeLabel: UILabel!
     @IBOutlet weak var timeSlider: UISlider!
-    
     @IBOutlet weak var bottomViewPositionConst: NSLayoutConstraint!
     
     var isLeft:Bool = false
@@ -41,8 +38,6 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
             })
         }
     }
-    
-    @IBOutlet weak var topControlView: UIView!
     
     func setTopConbtrolViewGradient() {
         let gradient: CAGradientLayer = CAGradientLayer()
@@ -71,8 +66,6 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         bottomControlView.layer.addSublayer(gradient)
     }
     
-    
-    
     func skipForward(){
         guard let duration = player.currentItem?.duration else {
             return
@@ -99,6 +92,31 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         let time:CMTime =  CMTimeMake(Int64(newTime*1000), 1000)
         player.seek(to: time)
     }
+    /**
+    Add timer to check controlView Show/Hidex
+    */
+    var seconds = 5
+    var timer = Timer()
+    var isTimerRunning:Bool = false
+    
+    func runTimer() {
+        timer = Timer.scheduledTimer(timeInterval: 1, target: self,   selector: (#selector(updateTimer)), userInfo: nil, repeats: true)
+    }
+    
+    @objc func updateTimer() {
+        seconds -= 1     //This will decrement(count down)the seconds.
+        print(seconds) //This will update the label.
+        
+        if seconds == 0 {
+            UIView.animate(withDuration: 1, delay: 0.0, options: [], animations: {
+                self.bottomViewPositionConst.constant = -50
+                self.view.layoutIfNeeded()
+            }, completion: { (finished: Bool) in
+                self.timer.invalidate()
+                self.seconds = 5
+            })
+        }
+    }
     
     /**
      Conditional PLAY/PAUSE VIDEO
@@ -115,22 +133,6 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         }
         isVideoPlaying = !isVideoPlaying
     }
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for touch in touches {
-            let location = touch.location(in: self.view)
-            
-            
-            print("location : \(location)")
-            
-            if location.x < self.view.frame.size.width/2 {
-                print("Left")
-                isLeft = true
-            }else {
-                print("Right")
-                isLeft = false
-            }
-        }
-    }
     
     @IBAction func rewindBackAction(_ sender: Any) {
         skipBackWard()
@@ -142,10 +144,14 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         overlayView.addGestureRecognizer(tap)
     }
     
+    func addOneTapGesture() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(oneTapped))
+        tap.numberOfTapsRequired = 1
+        overlayView.addGestureRecognizer(tap)
+    }
     
     var player:AVPlayer!
     var playerLayer:AVPlayerLayer!
-    
     var isVideoPlaying:Bool = false
     
     // MARK: - Volume Control
@@ -163,7 +169,9 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         
         setTopConbtrolViewGradient()
         setBottomControlViewGradient()
+        addOneTapGesture()
         addDoubleTapGesture()
+        runTimer()
         
         let volumeView = MPVolumeView(frame: CGRect(x: -100, y: -100, width: 0, height: 0))
         view.addSubview(volumeView)
@@ -203,6 +211,21 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
     
     
     // MARK: ovverride
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        for touch in touches {
+            let location = touch.location(in: self.view)
+            
+            print("location : \(location)")
+            
+            if location.x < self.view.frame.size.width/2 {
+                print("Left")
+                isLeft = true
+            }else {
+                print("Right")
+                isLeft = false
+            }
+        }
+    }
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         //        //첫번꺼 꺼
         if keyPath == "duration", let duration = player.currentItem?.duration.seconds, duration > 0.0{
@@ -299,6 +322,16 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
             player.play()
         }
         isVideoPlaying = !isVideoPlaying
+    }
+    
+    @objc
+    func oneTapped() {
+        UIView.animate(withDuration: 1, delay: 0.0, options: [], animations: {
+            self.bottomViewPositionConst.constant = 0
+            self.view.layoutIfNeeded()
+        }, completion: { (finished: Bool) in
+            
+        })
     }
     
     func timeToString(from time: CMTime) -> String {

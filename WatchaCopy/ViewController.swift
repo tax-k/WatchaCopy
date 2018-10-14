@@ -112,7 +112,6 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
             player.pause()
         }else {
             player.play()
-//            sender.setImage(UIImage(named: "pause"), for: .normal)
         }
         isVideoPlaying = !isVideoPlaying
     }
@@ -137,11 +136,17 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         skipBackWard()
     }
     
+    func addDoubleTapGesture() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(doubleTapped))
+        tap.numberOfTapsRequired = 2
+        overlayView.addGestureRecognizer(tap)
+    }
+    
+    
     var player:AVPlayer!
     var playerLayer:AVPlayerLayer!
     
     var isVideoPlaying:Bool = false
-//    var isPortraitMode:Bool = true
     
     // MARK: - Volume Control
     let maxVal:Float = 1.0
@@ -158,6 +163,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         
         setTopConbtrolViewGradient()
         setBottomControlViewGradient()
+        addDoubleTapGesture()
         
         let volumeView = MPVolumeView(frame: CGRect(x: -100, y: -100, width: 0, height: 0))
         view.addSubview(volumeView)
@@ -282,6 +288,17 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
                 }
             }
         }
+    }
+    
+    // MARK: double tap to play/pause
+    @objc
+    func doubleTapped() {
+        if isVideoPlaying {
+            player.pause()
+        }else {
+            player.play()
+        }
+        isVideoPlaying = !isVideoPlaying
     }
     
     func timeToString(from time: CMTime) -> String {

@@ -181,14 +181,24 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         NSStringFromClass($0.classForCoder) == "MPVolumeSlider"}.first as? UISlider)
     var volume:Float = ((MPVolumeView().subviews.filter{NSStringFromClass($0.classForCoder) == "MPVolumeSlider"}.first as? UISlider)?.value)!
     
-    func checkCurrentControlLevel(){
-        var brightness: Float = Float(UIScreen.main.brightness)
-        if brightness >= 0.8 {
-            controlLevelImageView.image = UIImage(named: "bright-high")
-        }else if brightness > 0.2 && brightness < 0.8 {
-            controlLevelImageView.image = UIImage(named: "bright-mid")
+    func checkCurrentControlLevel(_ isLeft: Bool){
+        if isLeft {
+            var brightness: Float = Float(UIScreen.main.brightness)
+            if brightness >= 0.8 {
+                controlLevelImageView.image = UIImage(named: "bright-high")
+            }else if brightness > 0.2 && brightness < 0.8 {
+                controlLevelImageView.image = UIImage(named: "bright-mid")
+            }else {
+                controlLevelImageView.image = UIImage(named: "bright-low")
+            }
         }else {
-            controlLevelImageView.image = UIImage(named: "bright-low")
+            if volume >= 0.7 {
+                controlLevelImageView.image = UIImage(named: "volume-high")
+            }else if volume > 0.2 && volume < 0.7 {
+                controlLevelImageView.image = UIImage(named: "volume-mid")
+            }else {
+                controlLevelImageView.image = UIImage(named: "volume-low")
+            }
         }
     }
     
@@ -199,7 +209,8 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         // Do any additional setup after loading the view, typically from a nib.
         
         titleLable.text = String(volume)
-        checkCurrentControlLevel()
+        checkCurrentControlLevel(isLeft)
+        indicatorWrapperView.isHidden = true
         
         setTopConbtrolViewGradient()
         setBottomControlViewGradient()
@@ -276,6 +287,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
     
     @objc
     func pan(recognizer:UIPanGestureRecognizer) {
+        let maxIndcatorWidth = maxIndicatorView.frame.size.width
         if recognizer.state == UIGestureRecognizerState.changed {
             let velocity:CGPoint = recognizer.velocity(in: self.view)
             let yTranslation = recognizer.translation(in: self.view).y
@@ -315,17 +327,14 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
             }
             
             if isLeft {
-                let maxIndcatorWidth = maxIndicatorView.frame.size.width
                 if velocity.y > 0 {
                     var brightness: Float = Float(UIScreen.main.brightness)
                     
                     brightness = brightness - 0.01
                     
-                    print("brightness up: \(brightness)")
                     UIScreen.main.brightness = CGFloat(brightness)
                     
-                    print(Float(maxIndcatorWidth) * brightness)
-                    checkCurrentControlLevel()
+                    checkCurrentControlLevel(isLeft)
                     UIView.animate(withDuration: 0, delay: 0.0, options: [], animations: {
                         self.indicatorWidthConst.constant = maxIndcatorWidth * CGFloat(brightness)
                         self.view.layoutIfNeeded()
@@ -333,10 +342,8 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
                 }else {
                     var brightness: Float = Float(UIScreen.main.brightness)
                     brightness = brightness + 0.01
-                    print("brightness down: \(brightness)")
                     UIScreen.main.brightness = CGFloat(brightness)
-                    print(Float(maxIndcatorWidth) * brightness)
-                    checkCurrentControlLevel()
+                    checkCurrentControlLevel(isLeft)
                     UIView.animate(withDuration: 0, delay: 0.0, options: [], animations: {
                         self.indicatorWidthConst.constant = maxIndcatorWidth * CGFloat(brightness)
                         self.view.layoutIfNeeded()
@@ -345,20 +352,32 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
             }else {
                 if velocity.y > 0 {
                     
-                    volume = volume - 0.01
+                    volume = volume - 0.02
+                    if volume < 0 {
+                        volume = 0
+                    }
+                    checkCurrentControlLevel(isLeft)
+                    UIView.animate(withDuration: 0, delay: 0.0, options: [], animations: {
+                        self.indicatorWidthConst.constant = maxIndcatorWidth * CGFloat(self.volume)
+                        self.view.layoutIfNeeded()
+                    })
                     volumeView?.setValue(volume, animated: false)
-//                    rightValueConst.constant = CGFloat(calcValueHeight(Float(volume)))
-//                    controlView.controlValueLabel.text = String(Int(calcCurrentPercent(Float(volume))))
-//                    controlView.controlValueLabel.textColor = UIColor(patternImage: partialGradient(forViewSize: controlView.controlValueLabel.frame.size, proportion: CGFloat(Float(volume))))
+                    print(volume)
                 }else {
                     //음향 감소
                     
                     print("y else 0")
-                    volume = volume + 0.01
+                    volume = volume + 0.02
+                    if volume > 1 {
+                        volume = 1
+                    }
+                    checkCurrentControlLevel(isLeft)
+                    UIView.animate(withDuration: 0, delay: 0.0, options: [], animations: {
+                        self.indicatorWidthConst.constant = maxIndcatorWidth * CGFloat(self.volume)
+                        self.view.layoutIfNeeded()
+                    })
                     volumeView?.setValue(volume, animated: false)
-//                    rightValueConst.constant = CGFloat(calcValueHeight(Float(volume)))
-//                    controlView.controlValueLabel.text = String(Int(calcCurrentPercent(Float(volume))))
-//                    controlView.controlValueLabel.textColor = UIColor(patternImage: partialGradient(forViewSize: controlView.controlValueLabel.frame.size, proportion: CGFloat(Float(volume))))
+                    print(volume)
                 }
             }
         }

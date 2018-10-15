@@ -126,11 +126,13 @@
                         <outlet property="rewindButton" destination="dCR-aR-FeA" id="smi-8i-rnD"/>
                         <outlet property="timeSlider" destination="TDT-OF-Te4" id="VBy-jY-qXt"/>
                         <outlet property="topControlView" destination="hpR-fZ-gRj" id="5Yw-HX-YJv"/>
+                        <outlet property="topViewPositionConst" destination="IRy-VJ-NKy" id="iUk-gx-OLY"/>
                         <outlet property="videoPlayView" destination="j0b-Hm-Rva" id="s3A-NL-r3x"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="-351" y="36"/>
         </scene>
     </scenes>
     <resources>

@@ -21,6 +21,9 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
     @IBOutlet weak var rewindButton: UIButton!
     @IBOutlet weak var endTimeLabel: UILabel!
     @IBOutlet weak var timeSlider: UISlider!
+    
+    
+    @IBOutlet weak var topViewPositionConst: NSLayoutConstraint!
     @IBOutlet weak var bottomViewPositionConst: NSLayoutConstraint!
     
     var isLeft:Bool = false
@@ -93,7 +96,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         player.seek(to: time)
     }
     /**
-    Add timer to check controlView Show/Hidex
+    Add timer to check controlView Show/Hide
     */
     var seconds = 5
     var timer = Timer()
@@ -104,11 +107,12 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
     }
     
     @objc func updateTimer() {
-        seconds -= 1     //This will decrement(count down)the seconds.
-        print(seconds) //This will update the label.
+        seconds -= 1
+        print(seconds)
         
         if seconds == 0 {
             UIView.animate(withDuration: 1, delay: 0.0, options: [], animations: {
+                self.topViewPositionConst.constant = -60
                 self.bottomViewPositionConst.constant = -50
                 self.view.layoutIfNeeded()
             }, completion: { (finished: Bool) in
@@ -327,10 +331,15 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
     @objc
     func oneTapped() {
         UIView.animate(withDuration: 1, delay: 0.0, options: [], animations: {
+            self.topViewPositionConst.constant = 0
             self.bottomViewPositionConst.constant = 0
             self.view.layoutIfNeeded()
         }, completion: { (finished: Bool) in
-            
+            UIView.animate(withDuration: 1, delay: 5.0, options: [], animations: {
+                self.topViewPositionConst.constant = -60
+                self.bottomViewPositionConst.constant = -50
+                self.view.layoutIfNeeded()
+            })
         })
     }
     

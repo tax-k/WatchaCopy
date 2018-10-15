@@ -22,9 +22,17 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
     @IBOutlet weak var endTimeLabel: UILabel!
     @IBOutlet weak var timeSlider: UISlider!
     
+    @IBOutlet weak var controlLevelImageView: UIImageView!
+    @IBOutlet weak var indicatorWrapperView: UIView!
+    @IBOutlet weak var maxIndicatorView: UIView!
+    
+    @IBOutlet weak var indicatorWidthConst: NSLayoutConstraint!
     
     @IBOutlet weak var topViewPositionConst: NSLayoutConstraint!
     @IBOutlet weak var bottomViewPositionConst: NSLayoutConstraint!
+    
+    @IBOutlet weak var titleLable: UILabel!
+    
     
     var isLeft:Bool = false
     var panDir:Int = 0
@@ -132,8 +140,10 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
     @IBAction func playAction(_ sender: Any) {
         if isVideoPlaying {
             player.pause()
+            playButton.setImage(UIImage(named: "play2"), for: .normal)
         }else {
             player.play()
+            playButton.setImage(UIImage(named: "pause2"), for: .normal)
         }
         isVideoPlaying = !isVideoPlaying
     }
@@ -142,15 +152,21 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         skipBackWard()
     }
     
-    func addDoubleTapGesture() {
+    func addDoubleTapGesture() -> UITapGestureRecognizer{
         let tap = UITapGestureRecognizer(target: self, action: #selector(doubleTapped))
         tap.numberOfTapsRequired = 2
+        tap.cancelsTouchesInView = true
         overlayView.addGestureRecognizer(tap)
+        
+        return tap
     }
     
     func addOneTapGesture() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(oneTapped))
         tap.numberOfTapsRequired = 1
+        tap.numberOfTouchesRequired = 1
+        tap.require(toFail: addDoubleTapGesture())
+        tap.cancelsTouchesInView = true
         overlayView.addGestureRecognizer(tap)
     }
     
@@ -165,11 +181,25 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         NSStringFromClass($0.classForCoder) == "MPVolumeSlider"}.first as? UISlider)
     var volume:Float = ((MPVolumeView().subviews.filter{NSStringFromClass($0.classForCoder) == "MPVolumeSlider"}.first as? UISlider)?.value)!
     
+    func checkCurrentControlLevel(){
+        var brightness: Float = Float(UIScreen.main.brightness)
+        if brightness >= 0.8 {
+            controlLevelImageView.image = UIImage(named: "bright-high")
+        }else if brightness > 0.2 && brightness < 0.8 {
+            controlLevelImageView.image = UIImage(named: "bright-mid")
+        }else {
+            controlLevelImageView.image = UIImage(named: "bright-low")
+        }
+    }
+    
     
     // MARK: - Lifecycle - viewDidLoad()
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
+        titleLable.text = String(volume)
+        checkCurrentControlLevel()
         
         setTopConbtrolViewGradient()
         setBottomControlViewGradient()
@@ -273,6 +303,9 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
                         
                     })
                 }
+            }else if direction.contains(.Up){
+                volume = volume + 0.01
+                volumeView?.setValue(volume, animated: false)
             }
             
             if direction.contains(.Left) && direction.contains(.Down) {
@@ -282,6 +315,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
             }
             
             if isLeft {
+                let maxIndcatorWidth = maxIndicatorView.frame.size.width
                 if velocity.y > 0 {
                     var brightness: Float = Float(UIScreen.main.brightness)
                     
@@ -289,11 +323,24 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
                     
                     print("brightness up: \(brightness)")
                     UIScreen.main.brightness = CGFloat(brightness)
+                    
+                    print(Float(maxIndcatorWidth) * brightness)
+                    checkCurrentControlLevel()
+                    UIView.animate(withDuration: 0, delay: 0.0, options: [], animations: {
+                        self.indicatorWidthConst.constant = maxIndcatorWidth * CGFloat(brightness)
+                        self.view.layoutIfNeeded()
+                    })
                 }else {
                     var brightness: Float = Float(UIScreen.main.brightness)
                     brightness = brightness + 0.01
                     print("brightness down: \(brightness)")
                     UIScreen.main.brightness = CGFloat(brightness)
+                    print(Float(maxIndcatorWidth) * brightness)
+                    checkCurrentControlLevel()
+                    UIView.animate(withDuration: 0, delay: 0.0, options: [], animations: {
+                        self.indicatorWidthConst.constant = maxIndcatorWidth * CGFloat(brightness)
+                        self.view.layoutIfNeeded()
+                    })
                 }
             }else {
                 if velocity.y > 0 {
@@ -316,14 +363,19 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
             }
         }
     }
+    @IBAction func touchTest(_ sender: Any) {
+        print("fasdfafsf")
+    }
     
     // MARK: double tap to play/pause
     @objc
     func doubleTapped() {
         if isVideoPlaying {
             player.pause()
+            playButton.setImage(UIImage(named: "play2"), for: .normal)
         }else {
             player.play()
+            playButton.setImage(UIImage(named: "pause2"), for: .normal)
         }
         isVideoPlaying = !isVideoPlaying
     }

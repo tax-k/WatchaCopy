@@ -32,9 +32,22 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
     @IBOutlet weak var bottomViewPositionConst: NSLayoutConstraint!
     
     @IBOutlet weak var titleLable: UILabel!
+    @IBOutlet weak var lockButton: UIButton!
     
+    @IBAction func lockAction(_ sender: Any) {
+        if isLocked {
+            lockButton.setImage(UIImage(named: "unlock"), for: .normal)
+            overlayView.isUserInteractionEnabled = true
+        }else {
+            lockButton.setImage(UIImage(named: "lock"), for: .normal)
+            overlayView.isUserInteractionEnabled = false
+        }
+        isLocked = !isLocked
+    }
     
+    var isLocked:Bool = false
     var isLeft:Bool = false
+    var isTouching:Bool = false
     var panDir:Int = 0
     @IBAction func timeSlideAction(_ sender: Any) {
         if let duration = player?.currentItem?.duration {
@@ -115,18 +128,21 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
     }
     
     @objc func updateTimer() {
-        seconds -= 1
-        print(seconds)
-        
-        if seconds == 0 {
-            UIView.animate(withDuration: 1, delay: 0.0, options: [], animations: {
-                self.topViewPositionConst.constant = -60
-                self.bottomViewPositionConst.constant = -50
-                self.view.layoutIfNeeded()
-            }, completion: { (finished: Bool) in
-                self.timer.invalidate()
-                self.seconds = 5
-            })
+        /*if touching end*/
+        if !isTouching {
+            seconds -= 1
+            print(seconds)
+            
+            if seconds == 0 {
+                UIView.animate(withDuration: 1, delay: 0.0, options: [], animations: {
+                    self.topViewPositionConst.constant = -60
+                    self.bottomViewPositionConst.constant = -50
+                    self.view.layoutIfNeeded()
+                }, completion: { (finished: Bool) in
+                    self.timer.invalidate()
+                    self.seconds = 5
+                })
+            }
         }
     }
     
@@ -182,6 +198,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
     var volume:Float = ((MPVolumeView().subviews.filter{NSStringFromClass($0.classForCoder) == "MPVolumeSlider"}.first as? UISlider)?.value)!
     
     func checkCurrentControlLevel(_ isLeft: Bool){
+        indicatorWrapperView.isHidden = false
         if isLeft {
             var brightness: Float = Float(UIScreen.main.brightness)
             if brightness >= 0.8 {
@@ -258,9 +275,8 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
     // MARK: ovverride
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
+            isTouching = true
             let location = touch.location(in: self.view)
-            
-            print("location : \(location)")
             
             if location.x < self.view.frame.size.width/2 {
                 print("Left")
@@ -288,9 +304,10 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
     @objc
     func pan(recognizer:UIPanGestureRecognizer) {
         let maxIndcatorWidth = maxIndicatorView.frame.size.width
+        
         if recognizer.state == UIGestureRecognizerState.changed {
             let velocity:CGPoint = recognizer.velocity(in: self.view)
-            let yTranslation = recognizer.translation(in: self.view).y
+//            let yTranslation = recognizer.translation(in: self.view).y
             
             
             let direction = recognizer.direction(in: self.view)
@@ -298,24 +315,25 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
             print(direction)
             
             if direction.contains(.Right){
-                if let duration = player?.currentItem?.duration, let currTime = player?.currentItem?.currentTime().seconds{
+                if let currTime = player?.currentItem?.currentTime().seconds{
                     
-                    let value = currTime + 3
+                    let value = currTime + 5
                     let seekTime = CMTime(value: Int64(value), timescale: 1)
                     player.seek(to: seekTime, completionHandler: { (completedSeek) in
 
                     })
                 }
             }else if direction.contains(.Left){
-                if let duration = player?.currentItem?.duration, let currTime = player?.currentItem?.currentTime().seconds{
+                if let currTime = player?.currentItem?.currentTime().seconds{
                     
-                    let value = currTime - 3
+                    let value = currTime - 5
                     let seekTime = CMTime(value: Int64(value), timescale: 1)
                     player.seek(to: seekTime, completionHandler: { (completedSeek) in
                         
                     })
                 }
-            }else if direction.contains(.Up){
+            }
+            else if direction.contains(.Up){
                 volume = volume + 0.01
                 volumeView?.setValue(volume, animated: false)
             }
@@ -381,9 +399,9 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
                 }
             }
         }
-    }
-    @IBAction func touchTest(_ sender: Any) {
-        print("fasdfafsf")
+        else if recognizer.state == .ended {
+            isTouching = false
+        }
     }
     
     // MARK: double tap to play/pause
@@ -406,11 +424,11 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
             self.bottomViewPositionConst.constant = 0
             self.view.layoutIfNeeded()
         }, completion: { (finished: Bool) in
-            UIView.animate(withDuration: 1, delay: 5.0, options: [], animations: {
-                self.topViewPositionConst.constant = -60
-                self.bottomViewPositionConst.constant = -50
-                self.view.layoutIfNeeded()
-            })
+//            UIView.animate(withDuration: 1, delay: 5.0, options: [], animations: {
+//                self.topViewPositionConst.constant = -60
+//                self.bottomViewPositionConst.constant = -50
+//                self.view.layoutIfNeeded()
+//            })
         })
     }
     

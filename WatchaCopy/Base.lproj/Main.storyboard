@@ -75,11 +75,11 @@
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RZy-8V-3Xa">
-                                        <rect key="frame" x="605" y="15" width="46" height="30"/>
-                                        <state key="normal" title="Button"/>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RZy-8V-3Xa">
+                                        <rect key="frame" x="636" y="19" width="15" height="22"/>
+                                        <state key="normal" image="unlock"/>
                                         <connections>
-                                            <action selector="touchTest:" destination="BYZ-38-t0r" eventType="touchUpInside" id="YBw-d5-35l"/>
+                                            <action selector="lockAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="bG6-UP-w72"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -105,9 +105,9 @@
                                                 <rect key="frame" x="0.0" y="14" width="60" height="22"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dCR-aR-FeA">
-                                                        <rect key="frame" x="0.0" y="2" width="0.0" height="18"/>
+                                                        <rect key="frame" x="0.0" y="1.5" width="0.0" height="19"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                        <state key="normal" image="shuffle"/>
+                                                        <state key="normal" image="play2"/>
                                                         <connections>
                                                             <action selector="playAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ruo-WA-kHm"/>
                                                         </connections>
@@ -186,10 +186,11 @@
                         <outlet property="endTimeLabel" destination="E5a-AK-don" id="gZy-Xt-qg3"/>
                         <outlet property="indicatorWidthConst" destination="xFI-wp-ri3" id="N2a-T5-HfQ"/>
                         <outlet property="indicatorWrapperView" destination="5Gw-KN-8js" id="epB-uv-8cQ"/>
+                        <outlet property="lockButton" destination="RZy-8V-3Xa" id="6cT-H7-vuj"/>
                         <outlet property="maxIndicatorView" destination="o2o-A3-VRt" id="thy-Te-zzd"/>
                         <outlet property="overlayView" destination="UXN-3H-6MI" id="zfE-dI-w78"/>
-                        <outlet property="playButton" destination="ggI-ro-NkH" id="jzS-Hj-HPz"/>
-                        <outlet property="rewindButton" destination="dCR-aR-FeA" id="smi-8i-rnD"/>
+                        <outlet property="playButton" destination="dCR-aR-FeA" id="Aao-WY-vSe"/>
+                        <outlet property="rewindButton" destination="ggI-ro-NkH" id="qc2-Ma-1Xd"/>
                         <outlet property="timeSlider" destination="TDT-OF-Te4" id="VBy-jY-qXt"/>
                         <outlet property="titleLable" destination="gyL-JP-TXb" id="zdF-QA-pBy"/>
                         <outlet property="topControlView" destination="hpR-fZ-gRj" id="5Yw-HX-YJv"/>
@@ -203,7 +204,8 @@
         </scene>
     </scenes>
     <resources>
+        <image name="play2" width="17" height="19"/>
         <image name="repeat" width="14" height="17"/>
-        <image name="shuffle" width="20" height="17"/>
+        <image name="unlock" width="15" height="19"/>
     </resources>
 </document>

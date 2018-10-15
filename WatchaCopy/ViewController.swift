@@ -48,7 +48,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
     var isLocked:Bool = false
     var isLeft:Bool = false
     var isTouching:Bool = false
-    var panDir:Int = 0
+    var panDir:String = ""
     @IBAction func timeSlideAction(_ sender: Any) {
         if let duration = player?.currentItem?.duration {
             print(duration)
@@ -264,12 +264,79 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         print("here")
         
         addTimeObserver()
+        
+//        makeSwipaActionStable()
         setGestureRecog()
+//        let swipeGestures = setupSwipeGestures()
+//        setupPanGestures(swipeGestures: swipeGestures)
     }
     // MARK: - Lifecycle - viewWillApper()
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
     }
+    
+    private func setupSwipeGestures() -> [UISwipeGestureRecognizer] {
+        let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(swiped))
+        swipeDown.direction = .down
+        self.view.addGestureRecognizer(swipeDown)
+        
+        let swipeUp = UISwipeGestureRecognizer(target: self, action: #selector(swiped))
+        swipeUp.direction = .up
+        self.view.addGestureRecognizer(swipeUp)
+        
+        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(swiped))
+        swipeRight.direction = .right
+        self.view.addGestureRecognizer(swipeRight)
+        
+        let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(swiped))
+        swipeLeft.direction = .left
+        self.view.addGestureRecognizer(swipeLeft)
+        
+        overlayView.addGestureRecognizer(swipeUp)
+        overlayView.addGestureRecognizer(swipeDown)
+        overlayView.addGestureRecognizer(swipeRight)
+        overlayView.addGestureRecognizer(swipeLeft)
+        
+        return [swipeUp, swipeDown, swipeRight, swipeLeft]
+    }
+    
+    private func setupPanGestures(swipeGestures: [UISwipeGestureRecognizer]) {
+        let panGesture = UIPanGestureRecognizer.init(target: self, action:#selector(pan(recognizer:)))
+        for swipeGesture in swipeGestures {
+            panGesture.require(toFail: swipeGesture)
+        }
+        overlayView.addGestureRecognizer(panGesture)
+    }
+    
+    
+    // MARK: - Make Swipe Action Stable
+    
+    @objc
+    func swiped(gesture: UIGestureRecognizer)
+    {
+        if let swipeGesture = gesture as? UISwipeGestureRecognizer
+        {
+            switch swipeGesture.direction
+            {
+                
+            case UISwipeGestureRecognizerDirection.right:
+                print("Swiped Right")
+                panDir = "right"
+            case UISwipeGestureRecognizerDirection.left:
+                print("Swiped Left")
+                panDir = "left"
+            case UISwipeGestureRecognizerDirection.up:
+                print("Swiped Up")
+                panDir = "up"
+            case UISwipeGestureRecognizerDirection.down:
+                print("Swiped Down")
+                panDir = "down"
+            default:
+                break
+            }
+        }
+    }
+    
     
     
     // MARK: ovverride
@@ -298,104 +365,155 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         let panGesture = UIPanGestureRecognizer.init(target: self, action: #selector(pan(recognizer:)))
         panGesture.delegate = self
         panGesture.minimumNumberOfTouches = 1
-        self.overlayView.addGestureRecognizer(panGesture)
+        self.view.addGestureRecognizer(panGesture)
     }
     
     @objc
     func pan(recognizer:UIPanGestureRecognizer) {
         let maxIndcatorWidth = maxIndicatorView.frame.size.width
         
+        print("is here")
+        let detectionLimit:CGFloat = 10
+        let vtDetectionLimit:CGFloat = 20
         if recognizer.state == UIGestureRecognizerState.changed {
             let velocity:CGPoint = recognizer.velocity(in: self.view)
-//            let yTranslation = recognizer.translation(in: self.view).y
+            let Translation = recognizer.translation(in: self.view)
+            
+            
+            let hrPoint = CGPoint(x: Translation.x, y: 0)
+            let vrPoint = CGPoint(x: 0, y:Translation.y)
+            print("==============")
+            print(Translation)
+            print(hrPoint)
+            print("==============")
+            
+            if hrPoint.x > detectionLimit {
+                print("Gesture went right")
+            }else if hrPoint.x < -detectionLimit {
+                print("Gesture went left")
+            }
+            
+            if vrPoint.y > vtDetectionLimit {
+                print("Gesture went Top")
+            }else if vrPoint.y < -vtDetectionLimit {
+                print("Gesture went Bottom")
+            }
+            
+            if velocity.x > detectionLimit {
+                panDir = "hr"
+                
+                if panDir == "hr" && panDir != "vr"{
+                    if let currTime = player?.currentItem?.currentTime().seconds{
+                        
+                        let value = currTime + 5
+                        let seekTime = CMTime(value: Int64(value), timescale: 1)
+                        player.seek(to: seekTime, completionHandler: { (completedSeek) in
+                            
+                        })
+                    }
+                }
+            } else if velocity.x < -detectionLimit {
+                panDir = "hr"
+                if panDir == "hr" && panDir != "vr"{
+                    if let currTime = player?.currentItem?.currentTime().seconds{
+                        
+                        let value = currTime - 5
+                        let seekTime = CMTime(value: Int64(value), timescale: 1)
+                        player.seek(to: seekTime, completionHandler: { (completedSeek) in
+                            
+                        })
+                    }
+                }
+            }
             
             
             let direction = recognizer.direction(in: self.view)
             
             print(direction)
+            print(panDir)
             
-            if direction.contains(.Right){
-                if let currTime = player?.currentItem?.currentTime().seconds{
-                    
-                    let value = currTime + 5
-                    let seekTime = CMTime(value: Int64(value), timescale: 1)
-                    player.seek(to: seekTime, completionHandler: { (completedSeek) in
-
-                    })
-                }
-            }else if direction.contains(.Left){
-                if let currTime = player?.currentItem?.currentTime().seconds{
-                    
-                    let value = currTime - 5
-                    let seekTime = CMTime(value: Int64(value), timescale: 1)
-                    player.seek(to: seekTime, completionHandler: { (completedSeek) in
-                        
-                    })
-                }
-            }
-            else if direction.contains(.Up){
-                volume = volume + 0.01
-                volumeView?.setValue(volume, animated: false)
-            }
-            
-            if direction.contains(.Left) && direction.contains(.Down) {
-                // do stuff
-            } else if direction.contains(.Up) {
-                // ...
-            }
+//            if direction.contains(.Right){
+//                if let currTime = player?.currentItem?.currentTime().seconds{
+//
+//                    let value = currTime + 5
+//                    let seekTime = CMTime(value: Int64(value), timescale: 1)
+//                    player.seek(to: seekTime, completionHandler: { (completedSeek) in
+//
+//                    })
+//                }
+//            }else if direction.contains(.Left){
+//                if let currTime = player?.currentItem?.currentTime().seconds{
+//
+//                    let value = currTime - 5
+//                    let seekTime = CMTime(value: Int64(value), timescale: 1)
+//                    player.seek(to: seekTime, completionHandler: { (completedSeek) in
+//
+//                    })
+//                }
+//            }
             
             if isLeft {
-                if velocity.y > 0 {
-                    var brightness: Float = Float(UIScreen.main.brightness)
-                    
-                    brightness = brightness - 0.01
-                    
-                    UIScreen.main.brightness = CGFloat(brightness)
-                    
-                    checkCurrentControlLevel(isLeft)
-                    UIView.animate(withDuration: 0, delay: 0.0, options: [], animations: {
-                        self.indicatorWidthConst.constant = maxIndcatorWidth * CGFloat(brightness)
-                        self.view.layoutIfNeeded()
-                    })
-                }else {
-                    var brightness: Float = Float(UIScreen.main.brightness)
-                    brightness = brightness + 0.01
-                    UIScreen.main.brightness = CGFloat(brightness)
-                    checkCurrentControlLevel(isLeft)
-                    UIView.animate(withDuration: 0, delay: 0.0, options: [], animations: {
-                        self.indicatorWidthConst.constant = maxIndcatorWidth * CGFloat(brightness)
-                        self.view.layoutIfNeeded()
-                    })
+                if velocity.y > vtDetectionLimit {
+                    panDir = "vr"
+                    if panDir == "vr" && panDir != "hr"{
+                        var brightness: Float = Float(UIScreen.main.brightness)
+                        
+                        brightness = brightness - 0.01
+                        
+                        UIScreen.main.brightness = CGFloat(brightness)
+                        
+                        checkCurrentControlLevel(isLeft)
+                        UIView.animate(withDuration: 0, delay: 0.0, options: [], animations: {
+                            self.indicatorWidthConst.constant = maxIndcatorWidth * CGFloat(brightness)
+                            self.view.layoutIfNeeded()
+                        })
+                    }
+                }else if velocity.y < -vtDetectionLimit {
+                    panDir = "vr"
+                    if panDir == "vr" && panDir != "hr"{
+                        var brightness: Float = Float(UIScreen.main.brightness)
+                        brightness = brightness + 0.01
+                        UIScreen.main.brightness = CGFloat(brightness)
+                        checkCurrentControlLevel(isLeft)
+                        UIView.animate(withDuration: 0, delay: 0.0, options: [], animations: {
+                            self.indicatorWidthConst.constant = maxIndcatorWidth * CGFloat(brightness)
+                            self.view.layoutIfNeeded()
+                        })
+                    }
                 }
             }else {
-                if velocity.y > 0 {
-                    
-                    volume = volume - 0.02
-                    if volume < 0 {
-                        volume = 0
+                if velocity.y > vtDetectionLimit {
+                    panDir = "vr"
+                    if panDir == "vr" && panDir != "hr" {
+                        volume = volume - 0.02
+                        if volume < 0 {
+                            volume = 0
+                        }
+                        checkCurrentControlLevel(isLeft)
+                        UIView.animate(withDuration: 0, delay: 0.0, options: [], animations: {
+                            self.indicatorWidthConst.constant = maxIndcatorWidth * CGFloat(self.volume)
+                            self.view.layoutIfNeeded()
+                        })
+                        volumeView?.setValue(volume, animated: false)
+                        print(volume)
                     }
-                    checkCurrentControlLevel(isLeft)
-                    UIView.animate(withDuration: 0, delay: 0.0, options: [], animations: {
-                        self.indicatorWidthConst.constant = maxIndcatorWidth * CGFloat(self.volume)
-                        self.view.layoutIfNeeded()
-                    })
-                    volumeView?.setValue(volume, animated: false)
-                    print(volume)
-                }else {
+                }else if velocity.y < -vtDetectionLimit {
                     //음향 감소
-                    
-                    print("y else 0")
-                    volume = volume + 0.02
-                    if volume > 1 {
-                        volume = 1
+                    panDir = "vr"
+                    if panDir == "vr" && panDir != "hr"{
+                        print("y else 0")
+                        volume = volume + 0.02
+                        if volume > 1 {
+                            volume = 1
+                        }
+                        checkCurrentControlLevel(isLeft)
+                        UIView.animate(withDuration: 0, delay: 0.0, options: [], animations: {
+                            self.indicatorWidthConst.constant = maxIndcatorWidth * CGFloat(self.volume)
+                            self.view.layoutIfNeeded()
+                        })
+                        volumeView?.setValue(volume, animated: false)
+                        print(volume)
                     }
-                    checkCurrentControlLevel(isLeft)
-                    UIView.animate(withDuration: 0, delay: 0.0, options: [], animations: {
-                        self.indicatorWidthConst.constant = maxIndcatorWidth * CGFloat(self.volume)
-                        self.view.layoutIfNeeded()
-                    })
-                    volumeView?.setValue(volume, animated: false)
-                    print(volume)
                 }
             }
         }
@@ -465,6 +583,18 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
 }
 
 extension UIPanGestureRecognizer {
+    
+//    func isLeft(theViewYouArePassing: UIView) -> Bool {
+//        let detectionLimit: CGFloat = 50
+//        var velocity : CGPoint = velocity(in: super.view)
+//        if velocity.x > detectionLimit {
+//            print("Gesture went right")
+//            return false
+//        } else if velocity.x < -detectionLimit {
+//            print("Gesture went left")
+//            return true
+//        }
+//    }
     
     public struct PanGestureDirection: OptionSet {
         public let rawValue: UInt8

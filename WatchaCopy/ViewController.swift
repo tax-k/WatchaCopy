@@ -515,7 +515,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
             case panAxis.upDown.rawValue:
                 print("vr")
                 if isLeft {
-                    controlVerticalVolume(recognizer)
+                    controlVerticalBrightness(recognizer)
                 }else {
                     controlVerticalVolume(recognizer)
                 }
